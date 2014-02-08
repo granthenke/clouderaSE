@@ -1,7 +1,7 @@
 # This used to conduct pre-install checks on target cluster nodes
 # Kevin Worrell - kw@cloudera.com - 02-08-2014
 #
-# TODO(kw@cloudera.com): Add a condition to allow for writting a shell script of actually executing with python
+# TODO(kw@cloudera.com): Add a condition to allow for writing a shell script of actually executing with python
 
 __author__ = 'kworrell'
 import subprocess
