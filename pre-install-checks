@@ -1,0 +1,57 @@
+# Place a category in the first field
+# Comment out commands with a #
+#
+# Lables for sections
+#
+l~a=Information Checks
+l~d=Disk Config Checks
+l~n=Network Config Checks
+l~g=General Config Checks
+l~k=Kernel Setting Checks
+#
+################# Information only commands #################
+a~	System Info~	uname -a
+a~	User Info~	who am i
+a~	Date~	date
+a~	Ping Info~	ping -c 1 $(hostname) | awk '/PING/ {print $2,$3}'~	\n1.) Check for fully qualified domain name \n2.) Domain resolves to the private network \n3.) IP is static address expected
+a~  IP Adapter Info~    ip addr | grep inet~ Check to ethernet adapters are configured properly
+a~	Mount/FS Info~	cat /etc/fstab  | awk '/(^\/)(.*(ext[3-4]|xfs))/ {print $1,"--->",$3}'~	Check to ensure expected mounts and filesystems
+a~	Name Server(s)~ echo -e "`cat /etc/resolv.conf | grep nameserver` <--- Verify the following are valid name servers"
+a~  Ethernet Card Info~ echo -e "`ethtool eth0  | awk '/Speed:|Duplex:|Supported link modes:/ {print $1,$2,$3}'`"~   Check to ensure expected speed is configured
+a~  Required dir(s)~   echo -e "`df -h | grep -E '/var|/tmp|/opt'` /var => 50-100GB for logging -- /opt => 20-50GB for software -- /tmp => 10GB minimum"
+#
+################# NETWORK config checks #################
+n~	/etc/sysconfig/network CHECK~	if [ "`hostname --fqdn`" == "`cat /etc/sysconfig/network | grep HOSTNAME= | cut -d'=' -f2`" ]; then echo "passed"; else echo "failed"; fi~	Check /etc/sysconfig/network is properly configured
+n~  nsswitch.conf CHECK~    if [ "`cat /etc/nsswitch.conf | grep -E 'hosts:\W*files\W*dns'`" ]; then echo "passed"; else echo "failed"; fi~  Check file /etc/nsswitch.conf for an entry like "hosts: files dns"
+n~  dig CHECK~  if [ "`dig google.com | grep -E 'status:\sNOERROR'`" ]; then echo "passed"; else echo "failed"; fi~ Check dig to ensure internet connectivity
+n~  ipv6 CHECK~ if [ "`lsmod | grep ipv6`" ]; then echo "failed"; else echo "passed"; fi~   Turn off ipv6 with (reboot required) 1.) echo NETWORKING_IPV6=no >> /etc/sysconfig/network ; and 2.) cho -e "IPV6INIT=no\nIPV6_AUTOCONF=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+n~  iptables CHECK~ if [ "`chkconfig iptables --list | grep :on`" ]; then echo "failed"; else echo "passed"; fi~    Please unsure all iptables run levels are off
+n~  ip6tables CHECK~ if [ "`chkconfig ip6tables --list | grep :on`" ]; then echo "failed"; else echo "passed"; fi~    Please unsure all ip6tables run levels are off
+n~  dhcp CHECK~ if [ "`cat /etc/sysconfig/network-scripts/ifcfg-eth* | grep BOOTPROTO=dhcp`" ]; then echo "passed"; else echo "failed"; fi~ Check your DCHP configuration
+n~  static IP CHECK~ if [ "`cat /etc/sysconfig/network-scripts/ifcfg-eth* | grep BOOTPROTO=static`" ]; then echo "passed"; else echo "failed"; fi~ Check to ensure static IPs are set
+n~  curl CHECK~ if [ "`curl -I -s -S  archive.cloudera.com | grep Location:`" ]; then echo "passed"; else echo "failed"; fi~    Run the curl -I -S archive.cloudera.com to ensure access
+#
+################# Disk related checks #################
+d~	Mount Options noatime AND nodirtime CHECK~	if [ "`mount | grep -E '(noatime)(nodiratime)'`" ]; then echo "passed"; else echo "failed"; fi~	Make sure datanode partitions are mounted with "noatime" AND "nodiratime"
+d~  lvm CHECK~  if [ "`df -Th | grep -E 'mapper|sd'`" ]; then echo "failed"; else echo "passed"; fi~ Make sure your mounts / partitions are not manamged by LVM
+#
+################# General config related checks #################
+g~  selinux CHECK~  if [ "`cat /etc/sysconfig/selinux | grep -E 'SELINUX=disabled'`" ]; then echo "passed"; else echo "failed"; fi~ Make sure SELINUX=disabled exists in /etc/sysconfig/selinux
+#
+################# Kernel config related checks #################
+k~  hugepage CHECK~ if [ "`cat /sys/kernel/mm/redhat_transparent_hugepage/enabled | grep -E '\[never\]'`" ]; then echo "passed"; else echo "failed"; fi~    Make sure hugepage is set to [never]
+k~  swappiness CHECK~  if [ "`cat /proc/sys/vm/swappiness`" -eq 0 ]; then echo "passed"; else echo "failed"; fi~ Make sure 0 (zero) exists in /proc/sys/vm/swappiness
+
+################# Additional System Information #################
+#cat /etc/redhat-release
+#cat /etc/suse-release
+#cat /proc/cpuinfo
+#cat /proc/meminfo
+#cat /proc/interrupts
+#cat /proc/mounts
+#cat /proc/swaps
+#cat /proc/diskstats
+#cat /proc/partitions
+#cat /proc/vmstat
+#service  --status-all
+#ls /etc/yum.repos.d
