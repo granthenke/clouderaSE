@@ -1,3 +1,5 @@
+# TODO(kw@cloudera.com): Add other flavors of Linux.  Currently only CentOS and RHEL
+#
 # Place a category in the first field
 # Comment out commands with a #
 #
