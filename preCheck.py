@@ -4,7 +4,8 @@
 # TODO(kw@cloudera.com): Add a condition to allow for writing a shell script of actually executing with python
 
 __author__ = 'kworrell'
-import subprocess
+# import subprocess
+import commands
 import sys
 
 dictlabels = {}
@@ -21,10 +22,12 @@ badoutput = []
 with open('pre-install-checks.conf', 'rt') as fchecks:
 
     for line in fchecks:
-        myline = line.split(sep='~')
+        # myline = line.split(sep='~')
+        myline = line.split('~')
         # TODO(kw@cloudera.com): place types in a dict and use dict.items()
         if myline[0].strip() in ['a','k','d','g','n']:
-            mycommand = subprocess.getoutput(myline[2].strip())
+            # mycommand = subprocess.getoutput(myline[2].strip())
+            mycommand = commands.getoutput(myline[2].strip())
             if myline[0].strip() in ['a']:
                 cmdoutput.append((myline[0].strip(), myline[1].strip(), mycommand.strip()))
             elif myline[0].strip() in ['d','n','g','k']:
