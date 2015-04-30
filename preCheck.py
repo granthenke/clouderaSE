@@ -4,9 +4,12 @@
 # TODO(kw@cloudera.com): Add a condition to allow for writing a shell script of actually executing with python
 
 __author__ = 'kworrell'
-# import subprocess
 import commands
 import sys
+
+if len(sys.argv) < 1:
+    sys.stderr.write('Usage: python preCheck.py myConfigFile')
+    sys.exit(1)
 
 dictlabels = {}
 dictlabels['a'] = 'Information Checks'
@@ -19,8 +22,7 @@ cmdoutput = []
 badoutput = []
 
 # TODO(kw@cloudera.com): Add sys.argv functionality and remove hardcoded file name
-with open('pre-install-checks.conf', 'rt') as fchecks:
-
+with open(str(sys.argv[1]), 'rt') as fchecks:
     for line in fchecks:
         # myline = line.split(sep='~')
         myline = line.split('~')
